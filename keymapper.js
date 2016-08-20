@@ -32,6 +32,17 @@ for(let k=1;k<20;k++) {KEYCODE['f'+k] = 111+k;} // f1 - f20
 
 var _lastTimeoutId;
 var _keyBuffer = [];
+const _modifiers = {
+  meta: false,
+  control: false,
+  shift: false,
+  alt: false
+};
+
+const _resetModifers = () => {
+  let m = _modifiers;
+  m.meta = m.control = m.shift = m.alt = false;
+}
 
 export default class Keymapper {
   static preferredCombinator = '+';
@@ -57,13 +68,34 @@ export default class Keymapper {
   handleKeyEvent(e) {
     clearTimeout(_lastTimeoutId);
     _keyBuffer.push(e)
+
+    switch (e.key) {
+      case 'Meta' || 'OS' :
+        _modifiers.meta = true;
+        break;
+      case 'Control':
+        _modifiers.control = true;
+        break;
+      case 'Shift':
+        _modifiers.shift = true;
+        break;
+      case 'Alt':
+        _modifiers.alt = true;
+        break;
+      default:
+        _keyBuffer.push(e);
+    }
+
     _lastTimeoutId = setTimeout(()=>{
       this.consumeKeyBuffer()
       _keyBuffer.length = 0;
     }, 500);
   }
 
-  consumeKeyBuffer() {}
+  consumeKeyBuffer() {
+    _resetModifers();
+    _keyBuffer.length = 0;
+  }
 
   map(keymap, eventOrHandler) {
     if (typeof eventOrHandler === 'string') {
