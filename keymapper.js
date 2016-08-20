@@ -36,13 +36,12 @@ const _modifiers = {
   meta: false,
   control: false,
   shift: false,
-  alt: false
+  alt: false,
+  reset: function() {
+    this.meta = this.control = this.shift = this.alt = false;
+  }
 };
 
-const _resetModifers = () => {
-  let m = _modifiers;
-  m.meta = m.control = m.shift = m.alt = false;
-}
 
 export default class Keymapper {
   static preferredCombinator = '+';
