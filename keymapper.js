@@ -13,6 +13,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
   window.CustomEvent = CustomEvent;
 })();
 
+var _keymaps = {};
 var _lastTimeoutId;
 var _combinator = '+';
 var _context = 'global';
@@ -87,15 +88,18 @@ function consumeCommandBuffer() {
   if (_commandBuffer.keys.length) {
     _commandBuffer.command.keys = _commandBuffer.keys.join(',');
     console.log(_commandBuffer.command.keys);
+    dispatchCommand(_commandBuffer.command);
   }
   _modifiers.reset();
   _commandBuffer.keys.length = 0;
   _commandBuffer.command = null;
 }
 
-function normalizeKeyCombination (keyCombination) {
-  keyCombination = keyCombination.toLowerCase().replace(/\s/g, '');
-  const keyCombos = keyCombination.split(',');
+function dispatchCommand(command) {}
+
+function normalizeKeys (keys) {
+  keys = keys.toLowerCase().replace(/\s/g, '');
+  const keyCombos = keys.split(',');
   return keyCombos.map( keyCombo => {
     var pseudoKeyEvent = {};
     keyCombo.split(_combinator).forEach( key => {
@@ -106,8 +110,8 @@ function normalizeKeyCombination (keyCombination) {
         pseudoKeyEvent.keyCode = keyToKeyCode[key];
       }
     });
-    keyEventToKeyCombination(pseudoKeyEvent);
-  }).join(_combinator);
+    return keyEventToKeyCombination(pseudoKeyEvent);
+  }).join(',');
 }
 
 export default class Keymapper {
@@ -121,7 +125,6 @@ export default class Keymapper {
       }
 
       this.add = this.map;
-      this.keymaps = [];
 
       window.addEventListener('keydown', handleKeyEvent);
       Object.defineProperty(Keymapper, '$$singleton', {value: this});
@@ -130,18 +133,26 @@ export default class Keymapper {
     }
   }
 
-  map(keyCombination, eventOrHandler) {
-    if (typeof eventOrHandler === 'string') {
-      var event = eventOrHandler;
-    } else if (typeof eventOrHandler === 'function') {
-      var handler = eventOrHandler;
-    } else {
-      return;
+  map(keys, command) {
+    if (typeof command === 'object') {
+      var {command, context} = command;
+    } else if (typeof command === 'string') {
+      var context = 'global';
     }
   }
 
-  registerKeymap(keyCombination) {
-    keyCombination = normalizeKeyCombination(keyCombination);
+  registerKeymap(keys, command, context) {
+    keys = normalizeKeys(keys);
+    if (!_keymaps[keys]) _keymaps[keys] = {};
+    _keymaps[keys][context] = command;
+  }
+
+  addCommandHandler() {
+
+  }
+
+  registerCommandHandlers() {
+
   }
 
   loadKeymap() {}
