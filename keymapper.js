@@ -16,7 +16,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 var _lastTimeoutId;
 var _combinator = '+';
 var _keyCombinationsBuffer = [];
-
+const _modifiersList = ['cmd','ctrl','shift','alt'];
 const _modifiers = {
   cmd: false,
   ctrl: false,
@@ -29,8 +29,8 @@ const _modifiers = {
 };
 
 function modifiersToString(e) {
-  let _this = e || _modifiers;
-  let modifiers = ['cmd','ctrl','shift','alt'].reduce((ret, modifier) => {
+  let _this = e || this;
+  let modifiers = _modifiersList.reduce(function(ret, modifier) {
     var modKey = e ? modifier+'Key' : modifier;
     if (modKey === 'cmdKey') modKey = 'metaKey';
     if (_this[modKey]) ret.push(modifier);
@@ -84,6 +84,23 @@ function consumeKeyCombinationsBuffer() {
   _keyCombinationsBuffer.length = 0;
 }
 
+function normalizeKeyCombination (keyCombination) {
+  keyCombination = keyCombination.toLowerCase().replace(/\s/g, '');
+  const keyCombos = keyCombination.split(',');
+  return keyCombos.map( keyCombo => {
+    var keys = keyCombo.split(_combinator);
+    var pseudoKeyEvent = {};
+    keys.forEach( key => {
+      if (_modifiersList.indexOf(key) > -1) {
+        if (key == 'cmd') key = 'meta';
+        pseudoKeyEvent[`${key}Key`] = true;
+      } else {
+        pseudoKeyEvent.keyCode = keyToKeyCode[key];
+      }
+    });
+    keyEventToKeyCombination(pseudoKeyEvent);
+  }).join(_combinator);
+}
 
 export default class Keymapper {
 
@@ -97,6 +114,7 @@ export default class Keymapper {
       }
 
       this.add = this.map;
+      this.keymaps = [];
 
       window.addEventListener('keydown', handleKeyEvent);
       Object.defineProperty(Keymapper, '$$singleton', {value: this});
@@ -105,7 +123,7 @@ export default class Keymapper {
     }
   }
 
-  map(keymap, eventOrHandler) {
+  map(keyCombination, eventOrHandler) {
     if (typeof eventOrHandler === 'string') {
       var event = eventOrHandler;
     } else if (typeof eventOrHandler === 'function') {
@@ -113,21 +131,12 @@ export default class Keymapper {
     } else {
       return;
     }
-    window.addEventListener(event, handler);
   }
 
-  registerKeymap(keymap) {
-    const combinator = _combinator;
-    keymap = keymap.toLowerCase().replace(/\s/g, '');
-  }
-
-  consumeKeymap(keymap) {
-    var keyCombos = keymap.split(',');
-    keyCombos.forEach( keyCombo => {
-      var keys = keyCombo.split(combinator);
-      keys.forEach()
-    })
+  registerKeymap(keyCombination) {
+    keyCombination = normalizeKeyCombination(keyCombination);
   }
 
   loadKeymap() {}
 }
+
