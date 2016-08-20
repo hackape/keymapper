@@ -14,27 +14,39 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 })();
 
 var _lastTimeoutId;
-var _keyBuffer = [];
 var _preferredCombinator = '+';
+var _keysBuffer = [];
+
 const _modifiers = {
-  meta: false,
-  control: false,
+  cmd: false,
+  ctrl: false,
   shift: false,
   alt: false,
   reset: function() {
-    this.meta = this.control = this.shift = this.alt = false;
-  }
+    this.cmd = this.ctrl = this.shift = this.alt = false;
+  },
+  toString: modifiersToString
 };
 
+function modifiersToString(e) {
+  let _this = e || _modifiers;
+  let modifiers = ['cmd','ctrl','shift','alt'].reduce((ret, modifier) => {
+    var modKey = e ? modifier+'Key' : modifier;
+    if (modKey === 'cmdKey') modKey = 'metaKey';
+    if (_this[modKey]) ret.push(modifier);
+    return ret;
+  }, []);
+  return modifiers.join(_preferredCombinator);
+}
 function handleKeyEvent(e) {
   clearTimeout(_lastTimeoutId);
 
   switch (e.key) {
     case 'Meta' || 'OS' :
-      _modifiers.meta = true;
+      _modifiers.cmd = true;
       break;
     case 'Control':
-      _modifiers.control = true;
+      _modifiers.ctrl = true;
       break;
     case 'Shift':
       _modifiers.shift = true;
