@@ -15,7 +15,11 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 
 var _lastTimeoutId;
 var _combinator = '+';
-var _keyCombinationsBuffer = [];
+var _context = 'global';
+var _commandBuffer = {
+  keys: [],
+  command: null,
+};
 const _modifiersList = ['cmd','ctrl','shift','alt'];
 const _modifiers = {
   cmd: false,
@@ -67,30 +71,34 @@ function handleKeyEvent(e) {
       _modifiers.alt = true;
       break;
     default:
-      var modString = _modifiers.toString();
-      _keyCombinationsBuffer.push(keyEventToKeyCombination(e));
+      _commandBuffer.keys.push(keyEventToKeyCombination(e));
+      _commandBuffer.command = {
+        keyboardEvent: e,
+        context: Keymapper.context || 'global'
+      };
   }
 
   _lastTimeoutId = setTimeout(()=>{
-    consumeKeyCombinationsBuffer()
+    consumeCommandBuffer()
   }, 500);
 }
 
-function consumeKeyCombinationsBuffer() {
-  if (_keyCombinationsBuffer.length) {
-    console.log(_keyCombinationsBuffer);
+function consumeCommandBuffer() {
+  if (_commandBuffer.keys.length) {
+    _commandBuffer.command.keys = _commandBuffer.keys.join(',');
+    console.log(_commandBuffer.command.keys);
   }
   _modifiers.reset();
-  _keyCombinationsBuffer.length = 0;
+  _commandBuffer.keys.length = 0;
+  _commandBuffer.command = null;
 }
 
 function normalizeKeyCombination (keyCombination) {
   keyCombination = keyCombination.toLowerCase().replace(/\s/g, '');
   const keyCombos = keyCombination.split(',');
   return keyCombos.map( keyCombo => {
-    var keys = keyCombo.split(_combinator);
     var pseudoKeyEvent = {};
-    keys.forEach( key => {
+    keyCombo.split(_combinator).forEach( key => {
       if (_modifiersList.indexOf(key) > -1) {
         if (key == 'cmd') key = 'meta';
         pseudoKeyEvent[`${key}Key`] = true;
@@ -103,7 +111,6 @@ function normalizeKeyCombination (keyCombination) {
 }
 
 export default class Keymapper {
-
   constructor(config={}) {
     if (!Keymapper.$$singleton) {
       const {combinator} = config;
