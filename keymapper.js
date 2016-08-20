@@ -14,6 +14,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 })();
 
 var _keymaps = {};
+var _commandHandlers = {};
 var _lastTimeoutId;
 var _combinator = '+';
 var _context = 'global';
@@ -75,7 +76,7 @@ function handleKeyEvent(e) {
       _commandBuffer.keys.push(keyEventToKeyCombination(e));
       _commandBuffer.command = {
         keyboardEvent: e,
-        context: Keymapper.context || 'global'
+        context: _context || 'global'
       };
   }
 
@@ -87,7 +88,6 @@ function handleKeyEvent(e) {
 function consumeCommandBuffer() {
   if (_commandBuffer.keys.length) {
     _commandBuffer.command.keys = _commandBuffer.keys.join(',');
-    console.log(_commandBuffer.command.keys);
     dispatchCommand(_commandBuffer.command);
   }
   _modifiers.reset();
@@ -95,7 +95,19 @@ function consumeCommandBuffer() {
   _commandBuffer.command = null;
 }
 
-function dispatchCommand(command) {}
+function dispatchCommand(command) {
+  var {keys, context} = command;
+  if (!_keymaps[keys]) return;
+  if (!_keymaps[keys][context]) context = 'global';
+  command.type = _keymaps[keys][context];
+  handleCommand(command);
+}
+
+function handleCommand(command) {
+  var handler = _commandHandlers[command.type];
+  if (!handler) return;
+  handler(command);
+}
 
 function normalizeKeys (keys) {
   keys = keys.toLowerCase().replace(/\s/g, '');
@@ -146,6 +158,9 @@ export default class Keymapper {
     if (!_keymaps[keys]) _keymaps[keys] = {};
     _keymaps[keys][context] = commandType;
   }
+
+  setContext(context) {
+    _context = context;
   }
 
   addCommandHandler() {
