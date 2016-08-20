@@ -14,7 +14,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 })();
 
 var _lastTimeoutId;
-var _preferredCombinator = '+';
+var _combinator = '+';
 var _keysBuffer = [];
 
 const _modifiers = {
@@ -36,8 +36,20 @@ function modifiersToString(e) {
     if (_this[modKey]) ret.push(modifier);
     return ret;
   }, []);
-  return modifiers.join(_preferredCombinator);
+  return modifiers.join(_combinator);
 }
+
+function keyEventToKeyCombination (e) {
+  let modString = modifiersToString(e);
+  if (!modString) modString = _modifiers.toString();
+  _modifiers.reset();
+  if (modString) {
+    return [modString, keyCodeToKey[e.keyCode]].join(_combinator);
+  } else {
+    return keyCodeToKey[e.keyCode];
+  }
+}
+
 function handleKeyEvent(e) {
   clearTimeout(_lastTimeoutId);
 
@@ -69,9 +81,7 @@ function consumeKeyBuffer() {
 }
 
 
-
 export default class Keymapper {
-  static preferredCombinator = '+';
 
   constructor(config={}) {
     if (!Keymapper.$$singleton) {
@@ -79,7 +89,7 @@ export default class Keymapper {
       if (combinator && typeof combinator === 'string') {
         if (combinator!=='+' && combinator!=='-'){ throw Error('Keymapper: '+
           'Unrecognized combinator, only "+" or "-" is supported.')}
-        _preferredCombinator = combinator;
+        _combinator = combinator;
       }
 
       this.add = this.map;
@@ -103,7 +113,7 @@ export default class Keymapper {
   }
 
   registerKeymap(keymap) {
-    const combinator = _preferredCombinator;
+    const combinator = _combinator;
     keymap = keymap.toLowerCase().replace(/\s/g, '');
   }
 
