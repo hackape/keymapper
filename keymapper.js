@@ -15,7 +15,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 
 var _lastTimeoutId;
 var _combinator = '+';
-var _keysBuffer = [];
+var _keyCombinationsBuffer = [];
 
 const _modifiers = {
   cmd: false,
@@ -67,17 +67,21 @@ function handleKeyEvent(e) {
       _modifiers.alt = true;
       break;
     default:
-      _keyBuffer.push(e);
+      var modString = _modifiers.toString();
+      _keyCombinationsBuffer.push(keyEventToKeyCombination(e));
   }
 
   _lastTimeoutId = setTimeout(()=>{
-    consumeKeyBuffer()
-  }, 0);
+    consumeKeyCombinationsBuffer()
+  }, 500);
 }
 
-function consumeKeyBuffer() {
+function consumeKeyCombinationsBuffer() {
+  if (_keyCombinationsBuffer.length) {
+    console.log(_keyCombinationsBuffer);
+  }
   _modifiers.reset();
-  _keyBuffer.length = 0;
+  _keyCombinationsBuffer.length = 0;
 }
 
 
