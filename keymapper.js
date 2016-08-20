@@ -13,7 +13,7 @@
   window.CustomEvent = CustomEvent;
 })();
 
-var KEYCODE = {
+const KEYCODE = {
   backspace: 8, tab: 9, clear: 12,
   enter: 13, 'return': 13,
   esc: 27, escape: 27, space: 32,
@@ -27,4 +27,61 @@ var KEYCODE = {
   ';': 186, '\'': 222,
   '[': 219, ']': 221, '\\': 220
 };
-for(k=1;k<20;k++) {KEYCODE['f'+k] = 111+k;} // f1 - f20
+for(let k=1;k<20;k++) {KEYCODE['f'+k] = 111+k;} // f1 - f20
+
+
+export default class Keymapper {
+  static preferredCombinator = '+';
+
+  _alias() {
+    this.add = this.map;
+  }
+
+  constructor(config={}) {
+    this._alias();
+    if (!Keymapper.$$singleton) {
+      const {combinator} = config;
+
+      if (combinator && typeof combinator === 'string') {
+        if (combinator!=='+' && combinator!=='-')
+          throw Error('Keymapper: Unrecognized combinator, only "+" or "-" is supported.')
+        Keymapper.preferredCombinator = combinator;
+      }
+
+      window.addEventListener('keydown', e => this.consumeKeyEvent(e));
+      Object.defineProperty(Keymapper, '$$singleton', {value: this});
+    } else {
+      return Keymapper.$$singleton;
+    }
+  }
+
+  map(keymap, eventOrHandler) {
+    if (typeof eventOrHandler === 'string') {
+      var event = eventOrHandler;
+    } else if (typeof eventOrHandler === 'function') {
+      var handler = eventOrHandler;
+    } else {
+      return;
+    }
+    window.addEventListener(event, handler);
+  }
+
+  registerKeymap(keymap) {
+    const combinator = Keymapper.preferredCombinator;
+    keymap = keymap.toLowerCase().replace(/\s/g, '');
+  }
+
+  consumeKeymap(keymap) {
+    var keyCombos = keymap.split(',');
+    keyCombos.forEach( keyCombo => {
+      var keys = keyCombo.split(combinator);
+      keys.forEach()
+    })
+  }
+
+  consumeKeyEvent(e) {
+    console.log(e);
+  }
+
+  loadKeymap() {}
+}
