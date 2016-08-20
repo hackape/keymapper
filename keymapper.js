@@ -33,12 +33,7 @@ for(let k=1;k<20;k++) {KEYCODE['f'+k] = 111+k;} // f1 - f20
 export default class Keymapper {
   static preferredCombinator = '+';
 
-  _alias() {
-    this.add = this.map;
-  }
-
   constructor(config={}) {
-    this._alias();
     if (!Keymapper.$$singleton) {
       const {combinator} = config;
 
@@ -50,6 +45,7 @@ export default class Keymapper {
 
       window.addEventListener('keydown', e => this.consumeKeyEvent(e));
       Object.defineProperty(Keymapper, '$$singleton', {value: this});
+      this.add = this.map;
     } else {
       return Keymapper.$$singleton;
     }
