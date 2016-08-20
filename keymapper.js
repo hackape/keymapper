@@ -133,18 +133,19 @@ export default class Keymapper {
     }
   }
 
-  map(keys, command) {
-    if (typeof command === 'object') {
-      var {command, context} = command;
-    } else if (typeof command === 'string') {
-      var context = 'global';
+  map(keys, descriptor) {
+    if (typeof descriptor === 'string') {
+      var commandType = descriptor;
+      descriptor = {command: commandType, context: 'global'};
     }
+    this.registerKeymap(keys, descriptor.command, descriptor.context);
   }
 
-  registerKeymap(keys, command, context) {
+  registerKeymap(keys, commandType, context) {
     keys = normalizeKeys(keys);
     if (!_keymaps[keys]) _keymaps[keys] = {};
-    _keymaps[keys][context] = command;
+    _keymaps[keys][context] = commandType;
+  }
   }
 
   addCommandHandler() {
