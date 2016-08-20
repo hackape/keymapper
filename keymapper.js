@@ -42,6 +42,37 @@ const _modifiers = {
   }
 };
 
+function handleKeyEvent(e) {
+  clearTimeout(_lastTimeoutId);
+
+  switch (e.key) {
+    case 'Meta' || 'OS' :
+      _modifiers.meta = true;
+      break;
+    case 'Control':
+      _modifiers.control = true;
+      break;
+    case 'Shift':
+      _modifiers.shift = true;
+      break;
+    case 'Alt':
+      _modifiers.alt = true;
+      break;
+    default:
+      _keyBuffer.push(e);
+  }
+
+  _lastTimeoutId = setTimeout(()=>{
+    consumeKeyBuffer()
+  }, 0);
+}
+
+function consumeKeyBuffer() {
+  _modifiers.reset();
+  _keyBuffer.length = 0;
+}
+
+
 
 export default class Keymapper {
   static preferredCombinator = '+';
@@ -57,43 +88,11 @@ export default class Keymapper {
 
       this.add = this.map;
 
-      window.addEventListener('keydown', e => this.handleKeyEvent(e));
+      window.addEventListener('keydown', handleKeyEvent);
       Object.defineProperty(Keymapper, '$$singleton', {value: this});
     } else {
       return Keymapper.$$singleton;
     }
-  }
-
-  handleKeyEvent(e) {
-    clearTimeout(_lastTimeoutId);
-    _keyBuffer.push(e)
-
-    switch (e.key) {
-      case 'Meta' || 'OS' :
-        _modifiers.meta = true;
-        break;
-      case 'Control':
-        _modifiers.control = true;
-        break;
-      case 'Shift':
-        _modifiers.shift = true;
-        break;
-      case 'Alt':
-        _modifiers.alt = true;
-        break;
-      default:
-        _keyBuffer.push(e);
-    }
-
-    _lastTimeoutId = setTimeout(()=>{
-      this.consumeKeyBuffer()
-      _keyBuffer.length = 0;
-    }, 500);
-  }
-
-  consumeKeyBuffer() {
-    _resetModifers();
-    _keyBuffer.length = 0;
   }
 
   map(keymap, eventOrHandler) {
