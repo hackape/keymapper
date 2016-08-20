@@ -36,21 +36,22 @@ export default class Keymapper {
   constructor(config={}) {
     if (!Keymapper.$$singleton) {
       const {combinator} = config;
-
       if (combinator && typeof combinator === 'string') {
-        if (combinator!=='+' && combinator!=='-')
-          throw Error('Keymapper: Unrecognized combinator, only "+" or "-" is supported.')
+        if (combinator!=='+' && combinator!=='-'){ throw Error('Keymapper: '+
+          'Unrecognized combinator, only "+" or "-" is supported.')}
         Keymapper.preferredCombinator = combinator;
       }
 
-      window.addEventListener('keydown', e => this.consumeKeyEvent(e));
-      Object.defineProperty(Keymapper, '$$singleton', {value: this});
       this.add = this.map;
+
+      window.addEventListener('keydown', e => this.handleKeyEvent(e));
+      Object.defineProperty(Keymapper, '$$singleton', {value: this});
     } else {
       return Keymapper.$$singleton;
     }
   }
 
+  handleKeyEvent(e) {}
   map(keymap, eventOrHandler) {
     if (typeof eventOrHandler === 'string') {
       var event = eventOrHandler;
@@ -73,10 +74,6 @@ export default class Keymapper {
       var keys = keyCombo.split(combinator);
       keys.forEach()
     })
-  }
-
-  consumeKeyEvent(e) {
-    console.log(e);
   }
 
   loadKeymap() {}
