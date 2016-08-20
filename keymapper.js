@@ -15,6 +15,7 @@ import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
 
 var _lastTimeoutId;
 var _keyBuffer = [];
+var _preferredCombinator = '+';
 const _modifiers = {
   meta: false,
   control: false,
@@ -66,7 +67,7 @@ export default class Keymapper {
       if (combinator && typeof combinator === 'string') {
         if (combinator!=='+' && combinator!=='-'){ throw Error('Keymapper: '+
           'Unrecognized combinator, only "+" or "-" is supported.')}
-        Keymapper.preferredCombinator = combinator;
+        _preferredCombinator = combinator;
       }
 
       this.add = this.map;
@@ -90,7 +91,7 @@ export default class Keymapper {
   }
 
   registerKeymap(keymap) {
-    const combinator = Keymapper.preferredCombinator;
+    const combinator = _preferredCombinator;
     keymap = keymap.toLowerCase().replace(/\s/g, '');
   }
 
