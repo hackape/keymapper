@@ -30,6 +30,9 @@ const KEYCODE = {
 for(let k=1;k<20;k++) {KEYCODE['f'+k] = 111+k;} // f1 - f20
 
 
+var _lastTimeoutId;
+var _keyBuffer = [];
+
 export default class Keymapper {
   static preferredCombinator = '+';
 
@@ -51,7 +54,17 @@ export default class Keymapper {
     }
   }
 
-  handleKeyEvent(e) {}
+  handleKeyEvent(e) {
+    clearTimeout(_lastTimeoutId);
+    _keyBuffer.push(e)
+    _lastTimeoutId = setTimeout(()=>{
+      this.consumeKeyBuffer()
+      _keyBuffer.length = 0;
+    }, 500);
+  }
+
+  consumeKeyBuffer() {}
+
   map(keymap, eventOrHandler) {
     if (typeof eventOrHandler === 'string') {
       var event = eventOrHandler;
