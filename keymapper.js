@@ -106,11 +106,15 @@ function dispatchCommand(command) {
   if (!_keymaps[context]) context = 'global';
   if (!_keymaps[context][keys]) return;
   command.type = _keymaps[context][keys];
+  if (typeof command.type === 'function') {
+    command.$$handler = command.type;
+    command.type = null;
+  }
   handleCommand(command);
 }
 
 function handleCommand(command) {
-  var handler = _commandHandlers[command.type];
+  var handler = (command.type) ? _commandHandlers[command.type] : command.$$handler;
   if (!handler) return;
   handler(command);
 }
