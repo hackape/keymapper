@@ -132,11 +132,17 @@ function normalizeKeys (keys) {
         pseudoKeyEvent.keyCode = keyToKeyCode[key];
       }
     });
+    if (typeof pseudoKeyEvent.keyCode != 'number')
+      throw Error(`Keymapper: Unrecognized key combination \`${keyCombo}\``);
     return keyEventToKeyCombination(pseudoKeyEvent);
   }).join(',');
 }
 
 export default class Keymapper {
+  static setContext(context) {
+    _context = context;
+  }
+
   constructor(config={}) {
     if (!Keymapper.$$singleton) {
       const {combinator} = config;
@@ -169,10 +175,7 @@ export default class Keymapper {
     _keymaps[descriptor.context][keys] = descriptor.command;
   }
 
-  setContext(context) {
-    _context = context;
-  }
-
+  loadKeymaps(keymaps) {}
 
   addCommandHandler(commandType, commandHandler) {
     _commandHandlers[commandType] = commandHandler;
@@ -183,6 +186,7 @@ export default class Keymapper {
       : Object.assign(_commandHandlers, commandHandlers);
   }
 
-  loadKeymap() {}
+  setContext = Keymapper.setContext
+
 }
 
