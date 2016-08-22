@@ -1,4 +1,4 @@
-import {keyCodeToKey, keyToKeyCode} from './keyCodeMap';
+import {keyCodeToKey, keyToKeyCode} from './keycodes';
 
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
 (function () {
