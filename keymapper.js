@@ -13,7 +13,7 @@ import {keyCodeToKey, keyToKeyCode} from './keycodes';
   window.CustomEvent = CustomEvent;
 })();
 
-var _keymaps = {};
+var _keymaps = {global:{}};
 var _commandHandlers = {};
 var _lastTimeoutId;
 var _combinator = '+';
@@ -21,6 +21,13 @@ var _context = 'global';
 var _commandBuffer = {
   keys: [],
   command: null,
+  reset: function() {
+    this.keys.length = 0;
+    this.command = null;
+  },
+  setCommand: function (command) = {
+    this.command = command;
+  }
 };
 const _modifiersList = ['cmd','ctrl','shift','alt'];
 const _modifiers = {
@@ -74,10 +81,10 @@ function handleKeyEvent(e) {
       break;
     default:
       _commandBuffer.keys.push(keyEventToKeyCombination(e));
-      _commandBuffer.command = {
+      _commandBuffer.setCommand({
         keyboardEvent: e,
         context: _context || 'global'
-      };
+      });
   }
 
   _lastTimeoutId = setTimeout(()=>{
@@ -91,15 +98,14 @@ function consumeCommandBuffer() {
     dispatchCommand(_commandBuffer.command);
   }
   _modifiers.reset();
-  _commandBuffer.keys.length = 0;
-  _commandBuffer.command = null;
+  _commandBuffer.reset();
 }
 
 function dispatchCommand(command) {
   var {keys, context} = command;
-  if (!_keymaps[keys]) return;
-  if (!_keymaps[keys][context]) context = 'global';
-  command.type = _keymaps[keys][context];
+  if (!_keymaps[context]) context = 'global';
+  if (!_keymaps[context][keys]) return;
+  command.type = _keymaps[context][keys];
   handleCommand(command);
 }
 
