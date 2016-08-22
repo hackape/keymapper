@@ -1,18 +1,5 @@
 import {keyCodeToKey, keyToKeyCode} from './keycodes';
 
-// Polyfill from https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
-(function () {
-  if ( typeof window.CustomEvent === "function" ) return false;
-  function CustomEvent ( event, params ) {
-    params = params || { bubbles: false, cancelable: false, detail: undefined };
-    var evt = document.createEvent( 'CustomEvent' );
-    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-    return evt;
-   }
-  CustomEvent.prototype = window.Event.prototype;
-  window.CustomEvent = CustomEvent;
-})();
-
 var _keymaps = {global:{}};
 var _commandHandlers = {};
 var _lastTimeoutId;
@@ -25,7 +12,7 @@ var _commandBuffer = {
     this.keys.length = 0;
     this.command = null;
   },
-  setCommand: function (command) = {
+  setCommand: function (command) {
     this.command = command;
   }
 };
