@@ -149,14 +149,14 @@ export default class Keymapper {
     if (typeof descriptor === 'string') {
       var commandType = descriptor;
       descriptor = {command: commandType, context: 'global'};
+    } else if (typeof descriptor === 'function') {
+      var handler = descriptor;
+      descriptor = {command: handler, context: 'global'};
     }
-    this.registerKeymap(keys, descriptor.command, descriptor.context);
-  }
-
-  registerKeymap(keys, commandType, context) {
+    if (!descriptor.command || !descriptor.context) return;
     keys = normalizeKeys(keys);
-    if (!_keymaps[keys]) _keymaps[keys] = {};
-    _keymaps[keys][context] = commandType;
+    if (!_keymaps[descriptor.context]) _keymaps[descriptor.context] = {};
+    _keymaps[descriptor.context][keys] = descriptor.command;
   }
 
   setContext(context) {
