@@ -1,4 +1,6 @@
-export const keyCodeToKey = {
+'use strict';
+
+var keyCodeToKey = {
   8: "backspace",
   9: "tab",
   13: "enter",
@@ -61,9 +63,9 @@ export const keyCodeToKey = {
   221: "]",
   222: "'"
 };
-for(let k=1;k<20;k++) {keyCodeToKey[111+k] = 'f'+k;}
+for(var k=1;k<20;k++) {keyCodeToKey[111+k] = 'f'+k;}
 
-export const keyToKeyCode = {
+var keyToKeyCode = {
   "backspace": 8,
   "tab": 9,
   "enter": 13, "return": 13,
@@ -126,4 +128,9 @@ export const keyToKeyCode = {
   "]": 221,
   "'": 222
 };
-for(let k=1;k<20;k++) {keyToKeyCode['f'+k] = 111+k;}
+for(var k=1;k<20;k++) {keyToKeyCode['f'+k] = 111+k;}
+
+module.exports = {
+  keyCodeToKey: keyCodeToKey,
+  keyToKeyCode: keyToKeyCode  
+}

@@ -1,14 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _keycodes = require('./keycodes');
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _keymaps = { global: {} };
 var _commandHandlers = {};
@@ -136,43 +128,38 @@ function normalizeKeys(keys) {
   }).join(',');
 }
 
-var Keymapper = function () {
-  _createClass(Keymapper, null, [{
-    key: 'setContext',
-    value: function setContext(context) {
-      _context = context;
-    }
-  }]);
 
-  function Keymapper() {
-    var config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+var _Keymapper = function () {
+  
+  function Keymapper(config) {
+    config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    
+    var constructor = function () {
+      if (!Keymapper.$$singleton) {
+        var combinator = config.combinator;
 
-    _classCallCheck(this, Keymapper);
-
-    this.setContext = Keymapper.setContext;
-
-    if (!Keymapper.$$singleton) {
-      var combinator = config.combinator;
-
-      if (combinator && typeof combinator === 'string') {
-        if (combinator !== '+' && combinator !== '-') {
-          throw Error('Keymapper: ' + 'Unrecognized combinator, only "+" or "-" is supported.');
+        if (combinator && typeof combinator === 'string') {
+          if (combinator !== '+' && combinator !== '-') {
+            throw Error('Keymapper: ' + 'Unrecognized combinator, only "+" or "-" is supported.');
+          }
+          _combinator = combinator;
         }
-        _combinator = combinator;
+
+        this.add = this.map;
+
+        window.addEventListener('keydown', handleKeyEvent);
+        Object.defineProperty(Keymapper, '$$singleton', { value: this });
+        return this;
+      } else {
+        return Keymapper.$$singleton;
       }
-
-      this.add = this.map;
-
-      window.addEventListener('keydown', handleKeyEvent);
-      Object.defineProperty(Keymapper, '$$singleton', { value: this });
-    } else {
-      return Keymapper.$$singleton;
     }
-  }
+    
+    var proto = Keymapper.prototype;
 
-  _createClass(Keymapper, [{
-    key: 'map',
-    value: function map(keys, descriptor) {
+    proto.setContext = Keymapper.setContext;
+    
+    proto.map = function map(keys, descriptor) {
       if (typeof descriptor === 'string') {
         var commandType = descriptor;
         descriptor = { command: commandType, context: 'global' };
@@ -185,22 +172,29 @@ var Keymapper = function () {
       if (!_keymaps[descriptor.context]) _keymaps[descriptor.context] = {};
       _keymaps[descriptor.context][keys] = descriptor.command;
     }
-  }, {
-    key: 'loadKeymaps',
-    value: function loadKeymaps(keymaps) {}
-  }, {
-    key: 'addCommandHandler',
-    value: function addCommandHandler(commandType, commandHandler) {
+
+    proto.loadKeymaps = function loadKeymaps(keymaps) {}
+
+    proto.addCommandHandler = function addCommandHandler(commandType, commandHandler) {
       _commandHandlers[commandType] = commandHandler;
     }
-  }, {
-    key: 'loadCommandHandlers',
-    value: function loadCommandHandlers(commandHandlers, override) {
+
+    proto.loadCommandHandlers = function loadCommandHandlers(commandHandlers, override) {
       _commandHandlers = override ? commandHandlers : Object.assign(_commandHandlers, commandHandlers);
     }
-  }]);
+
+    return constructor.bind(this)();
+  }
+
+
+  // static propperties;
+
+  Keymapper.setContext = function setContext(context) {
+    _context = context;
+  };
 
   return Keymapper;
 }();
 
-exports.default = Keymapper;
+
+module.exports = _Keymapper;
