@@ -2,7 +2,7 @@
   "name": "keymapper",
   "version": "0.0.1",
   "description": "",
-  "main": "keymapper.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,7 +11,10 @@
     "url": "git+ssh://git@github.com/hackape/keymapper.git"
   },
   "keywords": [
-    "keymap"
+    "keymap",
+    "keymaster",
+    "shortcut",
+    "hotkey"
   ],
   "author": "hackape",
   "license": "MIT",
