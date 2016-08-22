@@ -173,12 +173,14 @@ export default class Keymapper {
     _context = context;
   }
 
-  addCommandHandler() {
 
+  addCommandHandler(commandType, commandHandler) {
+    _commandHandlers[commandType] = commandHandler;
   }
 
-  registerCommandHandlers() {
-
+  loadCommandHandlers(commandHandlers, override) {
+    _commandHandlers = override ? commandHandlers
+      : Object.assign(_commandHandlers, commandHandlers);
   }
 
   loadKeymap() {}
